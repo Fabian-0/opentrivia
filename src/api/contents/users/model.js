@@ -1,5 +1,5 @@
 const sequelize = require("../../../config/database/db");
-const { DataTypes} = require("sequelize");
+const { DataTypes, literal} = require("sequelize");
 const Ranking = require("../ranking/model");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -7,6 +7,14 @@ const saltRounds = 10;
 const User = sequelize.define(
   'User',
   {
+    id: {
+      type: DataTypes.UUIDV4,
+      primaryKey: true,
+      defaultValue: literal("DEFAULT"),
+      validate: {
+        isNull: true
+      }
+    },
     first_name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -32,6 +40,12 @@ const User = sequelize.define(
         notNull: true
       }
     },
+    score:{
+      type: DataTypes.INTEGER,
+      validate: {
+        max: 1000
+      }
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -51,6 +65,19 @@ User.addHook('beforeCreate', async (user, options) => {
   try {
     const hash = bcrypt.hashSync(user.password, saltRounds);
     user.password = hash;
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+User.addHook("beforeBulkCreate", async (user, options)  => {
+  try {
+    console.log(user);
+    if(user.attributes.password) {
+      const hash = bcrypt.hashSync(user.password, saltRounds);
+      user.password = hash;
+    }
+    return;
   } catch (error) {
     console.error(error);
   }

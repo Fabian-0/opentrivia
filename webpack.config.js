@@ -1,8 +1,9 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+
 module.exports = {
   mode: 'development',
-  entry: path.resolve(__dirname, 'frontend'),
+  entry: ['babel-polyfill', path.resolve(__dirname, 'frontend')],
   module: {
     rules: [
       {
@@ -17,7 +18,7 @@ module.exports = {
           options: {
             presets: [
               '@babel/preset-react',
-              '@babel/preset-env'
+              '@babel/preset-env',
             ]
           }
         }
@@ -31,5 +32,5 @@ module.exports = {
     contentBase: path.join(__dirname, 'public'),
     compress: true,
     port: 8080,
-  },
+  }
 }

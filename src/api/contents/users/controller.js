@@ -1,22 +1,23 @@
-const User = require("./model");
-const Ranking = require("../ranking/model");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const { createToken } = require("../../../services/auth");
+const { createToken } = require("../../../services/helpers");
 
+const { 
+  getUserByPkService, 
+  createUserService, 
+  updateUserService, 
+  deleteUserService 
+} = require("./service");
 
 async function getUser(req, res) {
-  try {
-    const user = await User.findByPk(req.decoded.id, { raw: true, include: Ranking, nest: true });
-    delete user["password"];
+  const user = await getUserByPkService(req.decoded.id);
+  console.log(user);
+  if(user.data) {
     res.status(200);
     res.json({
       "error": "",
-      "message": user
+      "message": user.data
     });
-  } catch (error) {
-    console.error("User Controller getUser Error: ", error);
-    res.status(500);
+  } else {
+    res.status(404);
     res.send({
       "error": "try again later!",
       "message": ""
@@ -25,68 +26,67 @@ async function getUser(req, res) {
 };
 
 async function createUser(req, res) {
-  try {
-    const create  = await User.create(req.body);
-    const createRanking  = await Ranking.create({user_id: create.dataValues.id, score: 0});
-    const response = createToken(create.dataValues);
-    res.status(201);
-    res.json({"message": "user created", "error": "", "token": response});
+  if (req.body?.score) delete req.body.score;
 
-  } catch (error) {
-    console.error(error.message);
+  const create  = await createUserService(req.body);
+
+  if(create.data) {
+    const response = createToken(create.data);
+    if(response.data) {
+      res.status(201);
+      res.json({"message": "user created", "error": "", "token": response.data});
+    } else {
+      res.status(400);
+      res.send({"message": "","error": create.error}); 
+    }
+  } else {
     res.status(400);
-    res.send({"error": error.message});
+    res.send({"message": "","error": create.error}); 
   }
+  return;
 };
 
 async function updateUser(req, res) {
-  try {
-    const user = await User.update(req.body, {where: {id: req.decoded.id}});
+  if (req.body?.score) delete req.body.score;
+  if (req.body?.id) {
+    res.status(400);
+    res.json({"error": "you can't change the id!", "message": ""});
+    return;
+  };
+
+  const user = await updateUserService(req.body, req.decoded.id);
+
+  if(user.data) {
     console.log(user);
-    if(user[0]) {
-      res.status(200);
-      res.json({
-        "message": "user updated",
-        "error": ""
-      });
-    } else {
-      res.status(400);
-      res.json({
-        "message": "",
-        "error": "wrong field"
-      });
-    }
-  } catch (error) {
-    console.error(error.message);
+    res.status(200);
+    res.json({
+      "message": "user updated",
+      "error": ""
+    });
+  } else {
     res.status(400);
     res.json({
       "message": "",
-      "error": error.message
+      "error": user.error
     });
   }
+  return;  
 }
 
 async function deleteUser(req, res) {
-  try {
-    const user = await User.destroy({where: { id: req.decoded.id }});
-    console.log(user);
-    if(user) {
-      res.status(200);
-      res.json({"message": "user deleted", "error":""});
-    } else {
-      res.status(400);
-      res.json({
-        "message": "",
-        "error": "user has already been removed",
-      });
-    }
-  } catch (error) {
-    res.status(400);
+  const user = await deleteUserService(req.decoded.id);
+  console.log(user);
+  if(user.data) {
+    res.status(200);
+    res.json({"message": "user deleted", "error":""});
+  } else {
+    res.status(404);
     res.json({
       "message": "",
-      "error": error.message
+      "error": user.error,
     });
   }
+  return;
 }
 
 module.exports = {

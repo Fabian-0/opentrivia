@@ -1,0 +1,67 @@
+/* ++++++++++++++++++++++++++++++  ++++++++++++++++++++++++++++++ */
+/* ++++++++++++++++++++++++++++++ GENERAL STYLES ++++++++++++++++++++++++++++++ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #1F1147;
+  --secondary-color: #361E70;
+  --third-color: #32167C;
+  --fourth-color: #6949FD;
+  --fifth-color: #37E9BB;
+}
+
+html {
+  background-color: var(--primary-color);
+}
+
+/* ++++++++++++++++++++++++++++++ HELPER STYLES ++++++++++++++++++++++++++++++ */
+
+.primary-color {
+  color: var(--primary-color);
+}
+
+.bg-secondary {
+  background-color: var(--secondary-color);
+}
+
+.bg-third {
+  background-color: var(--third-color);
+}
+
+.bg-fifth {
+  background-color: var(--fifth-color);
+}
+
+.btn-primary {
+  background-color: var(--fourth-color);
+  border: none;
+}
+
+.btn-primary:hover {
+  transition: all 200ms linear;
+  background-color: var(--primary-color);
+}
+
+.icons-custom {
+  color: gray;
+}
+
+.pb-5-5 {
+  padding-bottom: 2rem;
+}
+
+.border-none {
+  border: none;
+}
+
+/* ++++++++++++++++++++++++++++++ SECTION REGISTER ++++++++++++++++++++++++++++++ */
+
+.section-register {
+  height: 100vh;
+  max-height: 100vh;
+}
